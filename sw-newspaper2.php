@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:       sw-newspaper2
+ * Plugin Name:       SW-Newspaper2
  * Plugin URI:        https://stefanwarnat.de
  * Description:       Publish PDF newspapers: automatic cover thumbnail, archive grid, download link and dFlip integration.
  * Version:           2.0.0
@@ -8,8 +8,7 @@
  * Requires PHP:      8.2
  * Author:            Stefan Warnat
  * Author URI:        https://stefanwarnat.de
- * License:           GPL-2.0-or-later
- * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * License:           MIT
  * Text Domain:       sw-newspaper2
  * Domain Path:       /languages
  *
@@ -44,7 +43,11 @@ if ( version_compare( PHP_VERSION, SWNEWSPAPER2_MIN_PHP, '<' ) ) {
 	return;
 }
 
-$swnewspaper2_autoload = SWNEWSPAPER2_DIR . 'vendor/autoload.php';
+$swnewspaper2_autoload = SWNEWSPAPER2_DIR . 'vendor-prefixed/autoload.php';
+if ( ! is_readable( $swnewspaper2_autoload ) ) {
+	// Source checkouts can use Composer directly; release ZIPs only ship Mozart's loader.
+	$swnewspaper2_autoload = SWNEWSPAPER2_DIR . 'vendor/autoload.php';
+}
 if ( ! is_readable( $swnewspaper2_autoload ) ) {
 	add_action(
 		'admin_notices',
@@ -57,8 +60,10 @@ if ( ! is_readable( $swnewspaper2_autoload ) ) {
 	);
 	return;
 }
-require_once $swnewspaper2_autoload;
-unset( $swnewspaper2_autoload );
+$swnewspaper2_loader = require $swnewspaper2_autoload;
+// Mozart's generated loader knows the dependencies; add the plugin's own code too.
+$swnewspaper2_loader->addPsr4( 'SWNewspaper2\\', SWNEWSPAPER2_DIR . 'src/' );
+unset( $swnewspaper2_autoload, $swnewspaper2_loader );
 
 register_activation_hook( __FILE__, array( \SWNewspaper2\Plugin::class, 'activate' ) );
 

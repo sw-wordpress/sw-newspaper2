@@ -26,7 +26,7 @@ Die Shortcodes benötigen keine schließenden Tags. Alle Parameter sind optional
 ## Voraussetzungen und Installation
 
 - WordPress ab **6.4** und PHP ab **8.2**, siehe [Plugin-Kopf](sw-newspaper2.php:3).
-- Ein vollständiges Plugin-Paket einschließlich des Composer-Autoloaders unter [`vendor/autoload.php`](vendor/autoload.php). Ohne diesen startet das Plugin nicht und zeigt einen Hinweis im Backend.
+- Ein vollständiges Release-Paket einschließlich des von Mozart erzeugten Abhängigkeits-Autoloaders. Bei Quellcode-Installationen kann alternativ der normale Composer-Autoloader verwendet werden. Ohne einen verfügbaren Autoloader startet das Plugin nicht und zeigt einen Hinweis im Backend; siehe [Bootstrap](sw-newspaper2.php:47).
 - Für automatische Titelbilder: die PHP-Erweiterung Imagick mit funktionierender PDF-Leseunterstützung. Je nach Server benötigt ImageMagick dafür Ghostscript und passende Sicherheitsrichtlinien. Imagick allein garantiert noch nicht, dass PDFs verarbeitet werden können.
 - Schreibbare WordPress-Upload- und temporäre Verzeichnisse sowie ausreichende Upload- und Speicherlimits für die verwendeten PDFs.
 - Optional **dFlip** für die Blätterbuchansicht und **WP Media Folder** zur Zuordnung neuer Dateien zu einem Medienordner. Beide sind für die normalen PDF-Links und das Archiv nicht erforderlich.
@@ -38,6 +38,27 @@ composer install --no-dev --optimize-autoloader
 ```
 
 Anschließend das Plugin in WordPress aktivieren. Die Prüfung des Autoloaders steht in der [Plugin-Startdatei](sw-newspaper2.php:47).
+
+## Release-Build und isolierte Composer-Abhängigkeiten
+
+Der [GitHub-Actions-Workflow](.github/workflows/main.yml) baut bei einem Versions-Tag das installierbare ZIP. Die Pipeline richtet PHP 8.2 und Composer 2 ein, validiert die [Composer-Konfiguration](composer.json), installiert ausschließlich Produktionsabhängigkeiten aus dem Lockfile und führt Mozart **1.2.3** in einem separaten Docker-Container aus. Mozart selbst wird nicht als Plugin-Abhängigkeit installiert oder ausgeliefert.
+
+Die [Mozart-Konfiguration](composer.json:20) isoliert Laufzeitbibliotheken unter dem Namespace **SWNewspaper2\\Dependencies**. Namenlose beziehungsweise globale Klassen, Konstanten und Funktionen erhalten ebenfalls Plugin-spezifische Präfixe. Ohne explizite Paketliste verarbeitet Mozart alle Laufzeitabhängigkeiten samt deren Abhängigkeiten, nicht die Entwicklungswerkzeuge.
+
+Das generierte Verzeichnis **vendor-prefixed** enthält die isolierten Bibliotheken und deren eigenen Autoloader. Der [Plugin-Bootstrap](sw-newspaper2.php:47) bevorzugt diesen Autoloader und registriert daran zusätzlich den Plugin-Namespace. Im Release ist deshalb das ursprüngliche Vendor-Verzeichnis nicht erforderlich und wird vollständig ausgeschlossen. Entwicklungswerkzeuge, Tests, Git-Metadaten und Composer-Builddateien werden ebenfalls nicht ins ZIP übernommen. Der Installationsordner im Archiv bleibt unabhängig vom Repository-Namen **sw-newspaper2**.
+
+Für einen lokalen Release-Build mit Docker im Plugin-Verzeichnis:
+
+```sh
+composer validate --strict
+composer install --no-dev --prefer-dist --no-interaction --no-scripts --optimize-autoloader
+docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/project" coenjacobs/mozart:1.2.3 /mozart/bin/mozart compose
+php tests/bootstrap.php
+```
+
+Mozart verändert den Build-Arbeitsbaum und entfernt verarbeitete Originalbibliotheken. Den Release-Build deshalb in einem frischen Checkout oder einer separaten Kopie ausführen, nicht in der laufenden WordPress-Installation. Nach Änderungen an den Abhängigkeiten das generierte Ausgabe-Verzeichnis neu aufbauen; es wird nicht eingecheckt. Beim Einbinden neuer Bibliotheken sicherstellen, dass die gebaute Plugin-Version die isolierten Klassen verwendet. Der aktuelle Stand benötigt noch keine externen Laufzeitbibliotheken.
+
+Der Workflow führt die [Importer-Regressionstests](tests/legacy-import.php) aus, prüft den generierten Autoloader und startet den [Bootstrap-Smoke-Test](tests/bootstrap.php) gegen das fertig zusammengestellte Paket **ohne** ursprüngliches Vendor-Verzeichnis. Anschließend werden ZIP-Integrität und erforderliche beziehungsweise unerwünschte Archivpfade geprüft. Erst danach wird das ZIP an das GitHub-Release angehängt.
 
 ## Automatischer Import aus sw-newspaper
 

@@ -17,6 +17,18 @@
             "SWNewspaper2\\": "src/"
         }
     },
+    "extra": {
+        "mozart": {
+            "dep_namespace": "SWNewspaper2\\Dependencies\\",
+            "dep_directory": "/vendor-prefixed/",
+            "classmap_directory": "/vendor-prefixed/",
+            "classmap_prefix": "SWNewspaper2_",
+            "constant_prefix": "SWNEWSPAPER2_",
+            "functions_prefix": "swnewspaper2_",
+            "generate_autoloader": true,
+            "delete_vendor_directories": true
+        }
+    },
     "config": {
         "sort-packages": true,
         "optimize-autoloader": true,

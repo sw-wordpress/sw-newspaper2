@@ -9,6 +9,9 @@ on:
 permissions:
   contents: write
 
+env:
+  PLUGIN_SLUG: sw-newspaper2
+
 jobs:
   build:
     name: Build release zip
@@ -31,26 +34,88 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "zip=${REPO_NAME}-${VERSION}.zip" >> "$GITHUB_OUTPUT"
 
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+          coverage: none
+
+      - name: Validate Composer configuration
+        run: composer validate --strict
+
+      - name: Install production dependencies
+        run: |
+          composer install \
+            --no-dev \
+            --prefer-dist \
+            --no-interaction \
+            --no-progress \
+            --no-scripts \
+            --optimize-autoloader
+
+      - name: Run regression tests
+        run: php tests/legacy-import.php
+
+      - name: Isolate dependencies with Mozart
+        run: |
+          docker run --rm \
+            --user "$(id -u):$(id -g)" \
+            -v "$GITHUB_WORKSPACE:/project" \
+            coenjacobs/mozart:1.2.3 \
+            /mozart/bin/mozart compose
+
+      - name: Verify Mozart output
+        run: test -f vendor-prefixed/autoload.php
+
       - name: Bundle WordPress plugin
         env:
           REPO_NAME: ${{ steps.metadata.outputs.repo }}
           VERSION: ${{ steps.metadata.outputs.version }}
         run: |
-          STAGING="$RUNNER_TEMP/staging/$REPO_NAME"
+          STAGING="$RUNNER_TEMP/staging/$PLUGIN_SLUG"
 
           mkdir -p "$STAGING"
 
-          # Copy repository without Git internals
+          # Ship only the isolated libraries, never Composer's original vendor tree.
           rsync -a \
-            --exclude='.git' \
-            --exclude='.github' \
+            --exclude='/.git/' \
+            --exclude='/.github/' \
+            --exclude='/.gitignore' \
+            --exclude='/.editorconfig' \
+            --exclude='/.phpcs.cache' \
+            --exclude='/vendor/' \
+            --exclude='/tests/' \
+            --exclude='/node_modules/' \
+            --exclude='/.env*' \
+            --exclude='*.log' \
+            --exclude='*.zip' \
+            --exclude='/composer.json' \
+            --exclude='/composer.lock' \
+            --exclude='/phpcs.xml*' \
             ./ "$STAGING/"
 
-          # Create ZIP with repository name as root folder
+          # Prove that the plugin boots without the original vendor directory.
+          php tests/bootstrap.php "$STAGING"
+
+          # Keep the installed plugin slug stable, even if the repository is renamed.
           (
             cd "$RUNNER_TEMP/staging"
-            zip -qr "$GITHUB_WORKSPACE/${REPO_NAME}-${VERSION}.zip" "$REPO_NAME"
+            zip -qr "$GITHUB_WORKSPACE/${REPO_NAME}-${VERSION}.zip" "$PLUGIN_SLUG"
           )
+
+      - name: Verify ZIP contents
+        env:
+          ZIP_FILE: ${{ steps.metadata.outputs.zip }}
+        run: |
+          unzip -t "$ZIP_FILE"
+          unzip -Z1 "$ZIP_FILE" > "$RUNNER_TEMP/zip-contents.txt"
+          grep -Fx "$PLUGIN_SLUG/vendor-prefixed/autoload.php" "$RUNNER_TEMP/zip-contents.txt"
+          grep -Fx "$PLUGIN_SLUG/sw-newspaper2.php" "$RUNNER_TEMP/zip-contents.txt"
+          if grep -Eq "^$PLUGIN_SLUG/(vendor|tests|\.git|\.github)/" "$RUNNER_TEMP/zip-contents.txt"; then
+            echo "Unexpected development or unprefixed vendor files in ZIP" >&2
+            exit 1
+          fi
 
       - name: Create release and attach ZIP
         uses: softprops/action-gh-release@v2

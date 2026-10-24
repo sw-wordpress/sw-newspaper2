@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<ruleset name="sw-newspaper2">
+    <description>WordPress Coding Standards (same rules as SWBackupIt CODE-STYLE.md section 3).</description>
+    <arg name="extensions" value="php"/>
+    <arg name="colors"/>
+    <arg value="sp"/>
+    <arg name="cache" value=".phpcs.cache"/>
+    <file>src</file>
+    <file>templates</file>
+    <file>sw-newspaper2.php</file>
+    <file>uninstall.php</file>
+
+    <config name="minimum_wp_version" value="6.4"/>
+    <config name="testVersion" value="8.2-"/>
+
+    <rule ref="WordPress">
+        <!-- Documented project decision (CODE-STYLE 3.1): PSR-4 class names/files (PascalCase) in the namespaced code. -->
+        <exclude name="WordPress.Files.FileName"/>
+        <exclude name="Universal.Operators.DisallowShortTernary"/>
+        <exclude name="Squiz.Commenting.FunctionComment.Missing"/>
+        <exclude name="Squiz.Commenting.FunctionComment.MissingParamTag"/>
+        <exclude name="Squiz.Commenting.FunctionComment.MissingParamComment"/>
+        <exclude name="Squiz.Commenting.FunctionComment.ParamCommentFullStop"/>
+        <exclude name="Squiz.Commenting.ClassComment.Missing"/>
+        <exclude name="Squiz.Commenting.VariableComment.Missing"/>
+        <exclude name="Generic.Commenting.DocComment.MissingShort"/>
+    </rule>
+    <rule ref="WordPress.WP.I18n">
+        <properties>
+            <property name="text_domain" type="array"><element value="sw-newspaper2"/></property>
+        </properties>
+    </rule>
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+        <properties>
+            <property name="prefixes" type="array"><element value="swnewspaper2"/><element value="SWNewspaper2"/><element value="SWNEWSPAPER2"/></property>
+        </properties>
+    </rule>
+    <rule ref="PHPCompatibilityWP"/>
+    <!-- Templates receive their data through the $data array of the including method. -->
+    <rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound">
+        <exclude-pattern>templates/*</exclude-pattern>
+    </rule>
+</ruleset>

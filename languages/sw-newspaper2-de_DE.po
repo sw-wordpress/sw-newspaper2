@@ -1,0 +1,240 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the sw-newspaper2 package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: sw-newspaper2\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-24 12:49+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: de_DE\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. translators: 1: required PHP version, 2: current PHP version
+#: sw-newspaper2.php:36
+#, php-format
+msgid "sw-newspaper2 requires PHP %1$s or newer. You are running PHP %2$s."
+msgstr "sw-newspaper2 benötigt PHP %1$s oder neuer. Du verwendest PHP %2$s."
+
+#: sw-newspaper2.php:54
+msgid ""
+"sw-newspaper2: the vendor directory is missing. Install the release package "
+"or run \"composer install\"."
+msgstr "sw-newspaper2: Das vendor-Verzeichnis fehlt. Installiere das Release-Paket oder führe \"composer install\" aus."
+
+#: src/Pdf_Thumbnailer.php:31
+msgid "The PHP Imagick extension is required to create cover images."
+msgstr "Die PHP-Erweiterung Imagick wird benötigt, um Titelbilder zu erzeugen."
+
+#: src/Pdf_Thumbnailer.php:51
+msgid "The cover image could not be rendered from the PDF."
+msgstr "Das Titelbild konnte nicht aus dem PDF erzeugt werden."
+
+#: src/Shortcodes.php:37
+msgid "Download"
+msgstr "Herunterladen"
+
+#: src/Upload_Service.php:31 src/Admin/Admin_Page.php:178
+msgid "Please enter a title."
+msgstr "Bitte einen Titel eingeben."
+
+#: src/Upload_Service.php:36 src/Admin/Admin_Page.php:179
+msgid "Please enter a valid date."
+msgstr "Bitte ein gültiges Datum eingeben."
+
+#: src/Upload_Service.php:40
+msgid "The file could not be uploaded."
+msgstr "Die Datei konnte nicht hochgeladen werden."
+
+#: src/Upload_Service.php:54
+msgid "Only PDF files can be uploaded."
+msgstr "Es können nur PDF-Dateien hochgeladen werden."
+
+#: src/Admin/Admin_Page.php:43 src/Admin/Admin_Page.php:44
+#: templates/admin/layout.php:17
+msgid "Newspaper"
+msgstr "Zeitung"
+
+#: src/Admin/Admin_Page.php:63
+msgid "Delete this newspaper and its cover image permanently?"
+msgstr "Diese Zeitung und ihr Titelbild endgültig löschen?"
+
+#: src/Admin/Admin_Page.php:64 templates/admin/tab-upload.php:50
+msgid "No file selected"
+msgstr "Keine Datei ausgewählt"
+
+#: src/Admin/Admin_Page.php:71
+msgid "You do not have permission to access this page."
+msgstr "Du hast keine Berechtigung für diese Seite."
+
+#: src/Admin/Admin_Page.php:121
+msgid "You do not have permission to delete this newspaper."
+msgstr "Du hast keine Berechtigung, diese Zeitung zu löschen."
+
+#: src/Admin/Admin_Page.php:143
+msgid "Upload"
+msgstr "Hochladen"
+
+#: src/Admin/Admin_Page.php:144
+msgid "Archive"
+msgstr "Archiv"
+
+#: src/Admin/Admin_Page.php:147
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: src/Admin/Admin_Page.php:173
+msgid "The newspaper was published."
+msgstr "Die Zeitung wurde veröffentlicht."
+
+#: src/Admin/Admin_Page.php:174
+msgid ""
+"The newspaper was published, but the cover image could not be created. Check "
+"that the PHP Imagick extension can read PDF files."
+msgstr "Die Zeitung wurde veröffentlicht, das Titelbild konnte aber nicht erzeugt werden. Prüfe, ob die PHP-Erweiterung Imagick PDF-Dateien lesen kann."
+
+#: src/Admin/Admin_Page.php:175
+msgid "The newspaper was deleted."
+msgstr "Die Zeitung wurde gelöscht."
+
+#: src/Admin/Admin_Page.php:176
+msgid "The newspaper could not be deleted."
+msgstr "Die Zeitung konnte nicht gelöscht werden."
+
+#: src/Admin/Admin_Page.php:177
+msgid "Settings saved."
+msgstr "Einstellungen gespeichert."
+
+#: src/Admin/Admin_Page.php:180
+msgid "The file could not be uploaded. Only PDF files are accepted."
+msgstr "Die Datei konnte nicht hochgeladen werden. Es werden nur PDF-Dateien akzeptiert."
+
+#: src/Admin/Admin_Page.php:196
+msgid "You do not have permission to do this."
+msgstr "Du hast dafür keine Berechtigung."
+
+#: templates/admin/tab-upload.php:17
+msgid "Publish a new issue"
+msgstr "Neue Ausgabe veröffentlichen"
+
+#: templates/admin/tab-upload.php:18
+msgid "PDF"
+msgstr "PDF"
+
+#: templates/admin/tab-upload.php:23
+msgid "Title"
+msgstr "Titel"
+
+#: templates/admin/tab-upload.php:24
+msgid "Shown below the cover in the archive."
+msgstr "Wird im Archiv unter dem Titelbild angezeigt."
+
+#: templates/admin/tab-upload.php:33
+msgid "Issue date"
+msgstr "Erscheinungsdatum"
+
+#: templates/admin/tab-upload.php:34
+msgid "The archive is sorted by this date, newest first."
+msgstr "Das Archiv ist nach diesem Datum sortiert, neueste zuerst."
+
+#: templates/admin/tab-upload.php:43
+msgid "PDF file"
+msgstr "PDF-Datei"
+
+#: templates/admin/tab-upload.php:44
+msgid "The cover image is created from the first page."
+msgstr "Das Titelbild wird aus der ersten Seite erzeugt."
+
+#: templates/admin/tab-upload.php:49
+msgid "Choose a PDF file"
+msgstr "PDF-Datei auswählen"
+
+#: templates/admin/tab-upload.php:57
+msgid "Publish"
+msgstr "Veröffentlichen"
+
+#. translators: %s: plugin version
+#: templates/admin/layout.php:21
+#, php-format
+msgid "sw-newspaper2 v%s"
+msgstr "sw-newspaper2 v%s"
+
+#: templates/admin/layout.php:27
+msgid "Newspaper sections"
+msgstr "Bereiche der Zeitung"
+
+#: templates/admin/layout.php:46
+msgid "Powered by sw-newspaper2 from Stefan Warnat"
+msgstr "Bereitgestellt von sw-newspaper2 von Stefan Warnat"
+
+#: templates/admin/tab-archive.php:18
+msgid "No newspapers published yet."
+msgstr "Noch keine Zeitungen veröffentlicht."
+
+#: templates/admin/tab-archive.php:36
+msgid "Open PDF"
+msgstr "PDF öffnen"
+
+#: templates/admin/tab-archive.php:43
+msgid "Delete"
+msgstr "Löschen"
+
+#: templates/admin/tab-settings.php:17
+msgid "Integrations"
+msgstr "Integrationen"
+
+#: templates/admin/tab-settings.php:22
+msgid "dFlip book"
+msgstr "dFlip-Buch"
+
+#: templates/admin/tab-settings.php:23
+msgid "The newest upload is set as source of this book."
+msgstr "Der neueste Upload wird als Quelle dieses Buchs gesetzt."
+
+#: templates/admin/tab-settings.php:27
+msgid "Install the dFlip plugin and create a book to use the flipbook."
+msgstr "Installiere das dFlip-Plugin und lege ein Buch an, um das Blätterbuch zu nutzen."
+
+#: templates/admin/tab-settings.php:30 templates/admin/tab-settings.php:51
+msgid "None"
+msgstr "Keine"
+
+#: templates/admin/tab-settings.php:43
+msgid "Media folder"
+msgstr "Medienordner"
+
+#: templates/admin/tab-settings.php:44
+msgid "Uploaded PDFs and covers are moved into this folder."
+msgstr "Hochgeladene PDFs und Titelbilder werden in diesen Ordner verschoben."
+
+#: templates/admin/tab-settings.php:48
+msgid "Install WP Media Folder to sort uploads into a folder."
+msgstr "Installiere WP Media Folder, um Uploads in einen Ordner zu sortieren."
+
+#: templates/admin/tab-settings.php:63
+msgid "Save"
+msgstr "Speichern"
+
+#: templates/admin/tab-settings.php:69
+msgid "Shortcodes"
+msgstr "Shortcodes"
+
+#: templates/admin/tab-settings.php:73
+msgid "Grid of all issues, newest first."
+msgstr "Raster aller Ausgaben, neueste zuerst."
+
+#: templates/admin/tab-settings.php:75
+msgid "Cover of the newest issue. Uses the dFlip book when configured."
+msgstr "Titelbild der neuesten Ausgabe. Nutzt das dFlip-Buch, falls konfiguriert."
+
+#: templates/admin/tab-settings.php:77
+msgid "Download button for the newest issue."
+msgstr "Download-Button für die neueste Ausgabe."

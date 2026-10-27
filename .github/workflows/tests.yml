@@ -1,13 +1,6 @@
 name: Tests
-
-on:
-  push:
-    branches: ['**']
-  pull_request:
-
 permissions:
   contents: read
-
 jobs:
   archive:
     runs-on: ubuntu-latest
@@ -15,46 +8,104 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - php: '8.2'
-            wordpress: '6.4'
-          - php: '8.2'
-            wordpress: latest
-          - php: '8.4'
-            wordpress: latest
+        - php: '8.2'
+          wordpress: '6.4'
+          coverage: false
+        - php: '8.2'
+          wordpress: latest
+          coverage: true
+        - php: '8.4'
+          wordpress: latest
+          coverage: false
     services:
       mariadb:
         image: mariadb:11.4
         env:
           MARIADB_DATABASE: newspaper_test
           MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: '1'
-        ports: ['3306:3306']
-        options: >-
-          --health-cmd="healthcheck.sh --connect --innodb_initialized"
-          --health-interval=5s --health-timeout=5s --health-retries=20
+        ports:
+        - 3306:3306
+        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval=5s --health-timeout=5s --health-retries=20
     steps:
-      - uses: actions/checkout@v4
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php }}
-          extensions: mysqli
-          tools: composer:v2
-          coverage: none
-      - run: composer install --prefer-dist --no-interaction --no-progress
-      - run: composer validate --strict
-      - run: composer cs
-      - run: php tests/bootstrap.php && php tests/legacy-import.php
-      - name: Install WordPress test files
-        env:
-          WP_VERSION: ${{ matrix.wordpress }}
-        run: |
-          if [ "$WP_VERSION" = latest ]; then
-            curl --fail --location --retry 3 https://wordpress.org/latest.tar.gz -o /tmp/wordpress.tar.gz
-          else
-            curl --fail --location --retry 3 "https://wordpress.org/wordpress-${WP_VERSION}.tar.gz" -o /tmp/wordpress.tar.gz
-          fi
-          tar -xzf /tmp/wordpress.tar.gz -C /tmp
-      - name: Archive behavior and query scaling
-        env:
-          WP_ROOT: /tmp/wordpress
-          WP_DB_HOST: 127.0.0.1:3306
-        run: php tests/archive-performance.php
+    - uses: actions/checkout@v4
+    - uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
+        extensions: mysqli
+        tools: composer:v2
+        coverage: ${{ matrix.coverage && 'xdebug' || 'none' }}
+    - run: composer install --prefer-dist --no-interaction --no-progress
+    - run: composer validate --strict
+    - run: composer cs
+    - name: Install WordPress test files
+      env:
+        WP_VERSION: ${{ matrix.wordpress }}
+      run: |
+        if [ "$WP_VERSION" = latest ]; then
+          curl --fail --location --retry 3 https://wordpress.org/latest.tar.gz -o /tmp/wordpress.tar.gz
+        else
+          curl --fail --location --retry 3 "https://wordpress.org/wordpress-${WP_VERSION}.tar.gz" -o /tmp/wordpress.tar.gz
+        fi
+        tar -xzf /tmp/wordpress.tar.gz -C /tmp
+    - name: Run regression scenarios
+      env:
+        WP_ROOT: /tmp/wordpress
+        WP_DB_HOST: 127.0.0.1:3306
+        COLLECT_COVERAGE: ${{ matrix.coverage }}
+        XDEBUG_MODE: coverage
+      run: |
+        if [ "$COLLECT_COVERAGE" = true ]; then
+          php tests/run.php --coverage
+        else
+          php tests/run.php
+        fi
+    - name: Upload Clover coverage
+      if: matrix.coverage
+      uses: actions/upload-artifact@v4
+      with:
+        name: php-coverage
+        path: coverage/clover.xml
+        if-no-files-found: error
+        retention-days: 14
+  sonarqube:
+    name: SonarQube Cloud
+    needs: archive
+    if: |-
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.head.repo.full_name == github.repository) ||
+      (github.event_name == 'push' &&
+       github.ref_name == github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - uses: actions/download-artifact@v4
+      with:
+        name: php-coverage
+        path: coverage
+    - name: Check SonarQube configuration
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
+      run: |
+        if [ -z "$SONAR_TOKEN" ]; then
+          echo '::error::Set the SONAR_TOKEN repository secret before running SonarQube analysis.'
+          exit 1
+        fi
+        if [ -z "$SONAR_ORGANIZATION" ]; then
+          echo '::error::Set the SONAR_ORGANIZATION repository variable to your SonarQube Cloud organization key.'
+          exit 1
+        fi
+        test -s coverage/clover.xml
+    - name: Analyze code and import coverage
+      uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9
+      with:
+        args: -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+on:
+  push:
+    branches:
+    - '**'
+  pull_request: null

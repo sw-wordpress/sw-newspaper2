@@ -16,6 +16,9 @@ final class Newspaper_Repository {
 	public const META_DATE       = '_swnewspaper2_date';
 	public const FOLDER_TAXONOMY = 'wpmf-category';
 
+	/** @var array<int, bool> Cover existence for the most recently primed archive. */
+	private array $primed_covers = array();
+
 	/**
 	 * Newspapers ordered by issue date, newest first.
 	 *
@@ -39,6 +42,40 @@ final class Newspaper_Repository {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Prime attachment posts and metadata only for an archive that will display covers.
+	 *
+	 * @param array<int, \WP_Post> $newspapers Newspapers returned by all(), with their metadata already primed.
+	 */
+	public function prime_cover_cache( array $newspapers ): void {
+		$ids = array();
+		foreach ( $newspapers as $newspaper ) {
+			$id = $this->thumbnail_id( $newspaper );
+			if ( $id > 0 ) {
+				$ids[ $id ] = false;
+			}
+		}
+		$this->primed_covers = $ids;
+		// An empty post__in would otherwise match unrelated attachments.
+		if ( array() === $ids ) {
+			return;
+		}
+		$covers = get_posts(
+			array(
+				'post_type'              => 'attachment',
+				'post_status'            => array_keys( get_post_stati() ),
+				'post__in'               => array_keys( $ids ),
+				'posts_per_page'         => count( $ids ),
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => true,
+				'update_post_term_cache' => false,
+			)
+		);
+		foreach ( $covers as $cover ) {
+			$this->primed_covers[ $cover->ID ] = true;
+		}
 	}
 
 	public function latest(): ?\WP_Post {
@@ -74,7 +111,10 @@ final class Newspaper_Repository {
 
 	public function thumbnail_url( \WP_Post $newspaper ): string {
 		$thumbnail_id = $this->thumbnail_id( $newspaper );
-		$url          = $thumbnail_id > 0 ? wp_get_attachment_url( $thumbnail_id ) : false;
+		if ( isset( $this->primed_covers[ $thumbnail_id ] ) && ! $this->primed_covers[ $thumbnail_id ] ) {
+			return '';
+		}
+		$url = $thumbnail_id > 0 ? wp_get_attachment_url( $thumbnail_id ) : false;
 		return false === $url ? '' : $url;
 	}
 

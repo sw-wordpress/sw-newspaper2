@@ -85,6 +85,7 @@ final class Admin_Page {
 
 		if ( 'archive' === $tab ) {
 			$data['newspapers'] = $this->repository->all();
+			$this->repository->prime_cover_cache( $data['newspapers'] );
 			$data['repository'] = $this->repository;
 		}
 		if ( 'settings' === $tab ) {

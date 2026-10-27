@@ -4,3 +4,7 @@
 .phpcs.cache
 *.log
 .env
+
+# Local analysis output
+/coverage/
+/.scannerwork/

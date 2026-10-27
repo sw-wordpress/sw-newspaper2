@@ -30,3 +30,19 @@ archive. CI runs this against the minimum WordPress 6.4 and current WordPress.
 Archives still display every selected issue. This optimization reduces SQL roundtrips;
 it does not bound HTML size or memory for an unlimited archive. Pagination remains
 a separate compatibility-sensitive change.
+
+## SonarQube coverage
+
+`php tests/run.php` runs all three regression scenarios in isolated processes.
+Use `XDEBUG_MODE=coverage php tests/run.php --coverage` with Xdebug (or PCOV) and
+the same disposable database variables to collect `coverage/clover.xml`. Each
+process must succeed and produce its own coverage fragment; the runner merges
+only fragments from the current invocation. Unexecuted production PHP files stay
+in the coverage denominator and file paths are normalized for the scanner job.
+
+The Actions workflow analyzes same-repository PRs and default-branch pushes.
+Configure `SONAR_TOKEN` as an Actions secret and `SONAR_ORGANIZATION` as an
+Actions variable, using organization-level bindings where appropriate. Fork PRs
+run tests without access to the scanner token. Project mapping is recorded in
+`sonar-project.properties`. Coverage and scanner output are development artifacts,
+never production plugin files.

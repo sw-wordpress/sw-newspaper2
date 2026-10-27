@@ -90,6 +90,7 @@ final class Shortcodes {
 			return '';
 		}
 
+		$this->repository->prime_cover_cache( $newspapers );
 		wp_enqueue_style( self::STYLE_HANDLE );
 
 		$html = sprintf( '<div class="swnp-archive" style="--swnp-columns:%d;">', $columns );

@@ -74,7 +74,7 @@ try {
 	swnewspaper2_check( $before === $wpdb->num_queries, 'An empty archive does not issue a cover query.' );
 
 	for ( $i = 0; $i < 1000; ++$i ) {
-		$cover = wp_insert_attachment( array( 'post_title' => 'Archive fixture cover', 'post_status' => 'inherit', 'post_mime_type' => 'image/png', 'guid' => 'https://newspaper.test/cover.png' ), '', 0, true );
+		$cover = wp_insert_attachment( array( 'post_title' => sprintf( 'Archive fixture cover %04d', $i ), 'post_status' => 'inherit', 'post_mime_type' => 'image/png', 'guid' => 'https://newspaper.test/cover.png' ), '', 0, true );
 		if ( is_wp_error( $cover ) ) { throw new RuntimeException( $cover->get_error_message() ); }
 		$ids[] = $cover;
 		// URLs need no files on disk; cleanup must never unlink a shared file.

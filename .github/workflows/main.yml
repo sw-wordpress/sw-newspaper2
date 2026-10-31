@@ -95,6 +95,9 @@ jobs:
             --exclude='*.zip' \
             --exclude='/composer.json' \
             --exclude='/composer.lock' \
+            --exclude='/package.json' \
+            --exclude='/package-lock.json' \
+            --exclude='/vitest.config.mjs' \
             --exclude='/phpcs.xml*' \
             ./ "$STAGING/"
 

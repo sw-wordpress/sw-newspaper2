@@ -26,6 +26,7 @@ $scenarios = array(
 	array( 'tests/bootstrap.php' ),
 	array( 'tests/legacy-import.php' ),
 	array( 'tests/archive-performance.php' ),
+	array( 'tests/admin-workflows.php' ),
 );
 
 $run = static function ( array $command ): void {

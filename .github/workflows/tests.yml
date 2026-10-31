@@ -31,7 +31,7 @@ jobs:
     - uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php }}
-        extensions: mysqli
+        extensions: mysqli, imagick
         tools: composer:v2
         coverage: ${{ matrix.coverage && 'xdebug' || 'none' }}
     - run: composer install --prefer-dist --no-interaction --no-progress
@@ -54,6 +54,7 @@ jobs:
         COLLECT_COVERAGE: ${{ matrix.coverage }}
         XDEBUG_MODE: coverage
       run: |
+        # With coverage, the run fails unless PHP line coverage is strictly greater than 80 %.
         if [ "$COLLECT_COVERAGE" = true ]; then
           php tests/run.php --coverage
         else
@@ -67,9 +68,29 @@ jobs:
         path: coverage/clover.xml
         if-no-files-found: error
         retention-days: 14
+  javascript:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: npm
+    - run: npm ci
+    # Fails unless JavaScript line coverage is strictly greater than 80 %.
+    - run: npm run test:coverage
+    - name: Upload LCOV coverage
+      uses: actions/upload-artifact@v4
+      with:
+        name: js-coverage
+        path: coverage/js/lcov.info
+        if-no-files-found: error
+        retention-days: 14
   sonarqube:
     name: SonarQube Cloud
-    needs: archive
+    needs:
+    - archive
+    - javascript
     if: |-
       (github.event_name == 'pull_request' &&
        github.event.pull_request.head.repo.full_name == github.repository) ||
@@ -84,6 +105,10 @@ jobs:
       with:
         name: php-coverage
         path: coverage
+    - uses: actions/download-artifact@v4
+      with:
+        name: js-coverage
+        path: coverage/js
     - name: Check SonarQube configuration
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -98,6 +123,7 @@ jobs:
           exit 1
         fi
         test -s coverage/clover.xml
+        test -s coverage/js/lcov.info
     - name: Analyze code and import coverage
       uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9
       with:

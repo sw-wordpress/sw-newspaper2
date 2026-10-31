@@ -1,214 +1,125 @@
-# sw-newspaper2
+# SW-Newspaper2
 
-sw-newspaper2 veröffentlicht PDF-Zeitungen über die WordPress-Mediathek. Das Plugin erzeugt ein Titelbild aus der ersten PDF-Seite und stellt die aktuelle Ausgabe, einen Download-Link und ein Ausgabenarchiv über Shortcodes bereit. Optional lässt sich die aktuelle Ausgabe als dFlip-Blätterbuch öffnen.
+[![Release](https://img.shields.io/github/v/release/sw-wordpress/sw-newspaper2?sort=semver)](https://github.com/sw-wordpress/sw-newspaper2/releases)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=sw-wordpress_sw-newspaper2&metric=coverage)](https://sonarcloud.io/summary/overall?id=sw-wordpress_sw-newspaper2)
+[![SonarQube Issues](https://sonarcloud.io/api/project_badges/measure?project=sw-wordpress_sw-newspaper2&metric=vulnerabilities)](https://sonarcloud.io/project/issues?id=sw-wordpress_sw-newspaper2&impactSoftwareQualities=SECURITY&resolved=false)
 
-Diese Dokumentation beschreibt die Implementierung von Version 2.0.0.
+Publishes [PDF](https://en.wikipedia.org/wiki/PDF) newspapers through the WordPress Media Library.
+Shows the current issue, a download button and an archive of all issues on your pages via
+[shortcodes](https://wordpress.org/documentation/article/shortcode-block/).
 
+## Features
 
-## Schnellstart: Was muss ich im Frontend einsetzen?
+- **Automatic cover image** — The first page of each PDF becomes its cover image.
+- **Current issue by date** — The issue with the newest issue date is always the current one, whatever the upload order.
+- **Archive grid** — All issues with cover, title and date in a responsive grid.
+- **Flipbook view** — Optionally shows the current issue as a [dFlip](https://wordpress.org/plugins/3d-flipbook-dflip-lite/) flipbook.
+- **Plain Media Library files** — PDFs and covers are normal media files; no external services.
 
-1. sw-newspaper2 unter **Plugins** aktivieren; die Voraussetzungen weiter unten beachten.
-2. Im WordPress-Menü **Zeitung / Newspaper → Upload** eine PDF mit Titel und Ausgabedatum hochladen.
-3. Eine Seite oder einen Beitrag bearbeiten und einen **Shortcode-Block** hinzufügen. Im klassischen Editor den Shortcode direkt in den Inhalt einsetzen. Bei Page-Buildern das jeweilige Shortcode-Element verwenden, nicht einen Code-Block.
-4. Je nach gewünschter Ausgabe eines oder mehrere der folgenden Beispiele einsetzen und die Seite veröffentlichen.
+## Languages
 
-| Gewünschte Ausgabe | Einzusetzender Shortcode |
-| --- | --- |
-| Titelbild der aktuellen Ausgabe, 300 Pixel breit | [`[swnewspaper2_current width="300"]`](src/Shortcodes.php:55) |
-| Button zur aktuellen PDF | [`[swnewspaper2_download label="Aktuelle Ausgabe herunterladen"]`](src/Shortcodes.php:36) |
-| Die zwölf neuesten Ausgaben, bis zu vier Spalten | [`[swnewspaper2_archive columns="4" limit="12"]`](src/Shortcodes.php:78) |
-| Alle Ausgaben mit Standardeinstellungen | [`[swnewspaper2_archive]`](src/Shortcodes.php:78) |
+English, German.
 
-Die Shortcodes benötigen keine schließenden Tags. Alle Parameter sind optional. Es muss weder eine PDF-Adresse noch eine Medien-ID im Shortcode angegeben werden. Die drei Shortcodes sind unabhängig voneinander einsetzbar, auch gemeinsam auf derselben Seite.
+## Usage
 
-**Ohne mindestens eine über das Plugin veröffentlichte oder aus dem Vorgänger importierte Ausgabe liefern alle drei Shortcodes eine leere Ausgabe, ohne Hinweistext.**
+1. Open **Newspaper → Upload**, enter a **Title** and an **Issue date**, choose a **PDF file** and click **Publish**.
+2. Optional: open **Newspaper → Settings**, choose a **dFlip book** and/or **Media folder** and click **Save**.
+3. Edit a page and add a shortcode block with one or more of these shortcodes:
 
-## Voraussetzungen und Installation
+   ```text
+   [swnewspaper2_current width="300"]
+   [swnewspaper2_download label="Download current issue"]
+   [swnewspaper2_archive columns="4" limit="12"]
+   ```
 
-- WordPress ab **6.4** und PHP ab **8.2**, siehe [Plugin-Kopf](sw-newspaper2.php:3).
-- Ein vollständiges Release-Paket einschließlich des von Mozart erzeugten Abhängigkeits-Autoloaders. Bei Quellcode-Installationen kann alternativ der normale Composer-Autoloader verwendet werden. Ohne einen verfügbaren Autoloader startet das Plugin nicht und zeigt einen Hinweis im Backend; siehe [Bootstrap](sw-newspaper2.php:47).
-- Für automatische Titelbilder: die PHP-Erweiterung Imagick mit funktionierender PDF-Leseunterstützung. Je nach Server benötigt ImageMagick dafür Ghostscript und passende Sicherheitsrichtlinien. Imagick allein garantiert noch nicht, dass PDFs verarbeitet werden können.
-- Schreibbare WordPress-Upload- und temporäre Verzeichnisse sowie ausreichende Upload- und Speicherlimits für die verwendeten PDFs.
-- Optional **dFlip** für die Blätterbuchansicht und **WP Media Folder** zur Zuordnung neuer Dateien zu einem Medienordner. Beide sind für die normalen PDF-Links und das Archiv nicht erforderlich.
+4. Manage issues under **Newspaper → Archive** (**Open PDF**, **Delete**).
 
-Bei Installation aus dem Quellcode ohne mitgelieferte Abhängigkeiten im Plugin-Verzeichnis Composer ausführen. Für eine produktive Installation:
+The shortcodes stay empty until at least one issue has been published. All parameters and
+details: [docs/user-guide.md](docs/user-guide.md) (German).
+
+**Upgrading from sw-newspaper:** on activation, issues of the predecessor plugin are taken over
+automatically as long as sw-newspaper2 has no issues yet; no files are copied, and old shortcodes
+must be replaced. Details: [docs/user-guide.md](docs/user-guide.md#automatischer-import-aus-sw-newspaper).
+
+## Configuration
+
+### Requirements
+
+PHP 8.2+ with [Imagick](https://www.php.net/manual/en/book.imagick.php) able to read PDFs (usually
+needs [Ghostscript](https://www.ghostscript.com/); otherwise issues show a "PDF" placeholder instead
+of a cover), WordPress 6.4+, single site or multisite.
+
+### Settings
+
+**Newspaper → Settings** (administrators only) selects the **dFlip book** and the **Media folder**.
+Uploading and the archive need the `upload_files` capability (authors and above by default).
+
+The plugin has no `wp-config.php` constants of its own.
+
+### Integrations
+
+- **[dFlip](https://wordpress.org/plugins/3d-flipbook-dflip-lite/)** — Each new upload becomes the source of the selected book, and `[swnewspaper2_current]` shows it as a flipbook.
+- **[WP Media Folder](https://www.joomunited.com/wordpress-products/wp-media-folder)** — New PDFs and covers are sorted into the selected media folder.
+
+Details and pitfalls: [docs/user-guide.md](docs/user-guide.md#optionale-integrationen).
+
+### Deactivation and removal
+
+Deactivating keeps all issues and settings; the shortcodes then appear as plain text. Deleting
+the plugin removes only its settings; PDFs and covers stay in the Media Library (on multisite,
+settings are removed for the main site only). **Delete** under **Newspaper → Archive** removes
+the PDF and its cover permanently, including files shared with an imported sw-newspaper installation.
+
+## Troubleshooting
+
+| Problem | Solution |
+|---|---|
+| The shortcode appears as text. | Check that the plugin is active, PHP is 8.2+ and the release package is complete. Use a shortcode block, not a code block. |
+| Nothing appears. | Publish at least one issue via **Newspaper → Upload**; a PDF in the Media Library alone is not enough. |
+| "PDF" appears instead of a cover. | The cover could not be created. Check Imagick, its PDF support, server policies and write permissions. The PDF stays available. |
+| The wrong issue is current. | Check the issue dates: the newest issue date wins, not the latest upload. |
+| dFlip shows an older or different issue. | The book source changes on every plugin upload, even for older issues. Check the source in dFlip. |
+| Clicking the button does not download the file. | The button is a normal PDF link; browser and server decide whether to show or download it. |
+| The upload fails. | Use PDF files only, check title and date, the WordPress/PHP upload limits and folder permissions. |
+
+The shortcodes have no access control; PDFs are public via their media URL.
+
+## Built with AI
+
+This plugin was implemented with AI assistance. Why it exists and how AI is used:
+[sw-wordpress manifest](https://github.com/sw-wordpress/.github/blob/main/profile/README.md).
+
+AI agents must follow the project rules before changing code:
+
+- Rules and mandatory coverage: [AGENTS.md](AGENTS.md)
+- Tests, coverage and SonarQube: [tests/README.md](tests/README.md)
+- User guide and release build: [docs/](docs/)
+- README structure: [README-STANDARD.md](https://github.com/sw-wordpress/sw-securelogin/blob/master/docs/README-STANDARD.md)
+
+## Development
+
+Requirements: PHP 8.2+, Composer, Xdebug or PCOV for coverage, a disposable MariaDB/MySQL
+database with a WordPress copy for the integration scenario, and Docker for the release build.
+JavaScript and CSS are plain files; there is no build step.
 
 ```sh
-composer install --no-dev --optimize-autoloader
+composer install
+composer validate --strict && composer cs                # Composer config, WordPress coding standards
+
+php tests/bootstrap.php && php tests/legacy-import.php   # standalone regressions
+WP_ROOT=/tmp/wordpress WP_DB_HOST=127.0.0.1:3306 \
+  php tests/run.php --coverage                           # all scenarios, writes coverage/clover.xml
 ```
 
-Anschließend das Plugin in WordPress aktivieren. Die Prüfung des Autoloaders steht in der [Plugin-Startdatei](sw-newspaper2.php:47).
+Every change needs tests; line coverage must stay above 80 %. Never point the tests at a
+production database; setup: [tests/README.md](tests/README.md). GitHub Actions run the tests on
+every push (WordPress 6.4 and latest, PHP 8.2 and 8.4); SonarQube analyzes the default branch and pull requests.
 
-## Release-Build und isolierte Composer-Abhängigkeiten
+Pushing a version tag (e.g. `2.0.1`) builds the release ZIP with dependencies isolated by
+[Mozart](https://github.com/coenjacobs/mozart); local build: [docs/development.md](docs/development.md).
 
-Der [GitHub-Actions-Workflow](.github/workflows/main.yml) baut bei einem Versions-Tag das installierbare ZIP. Die Pipeline richtet PHP 8.2 und Composer 2 ein, validiert die [Composer-Konfiguration](composer.json), installiert ausschließlich Produktionsabhängigkeiten aus dem Lockfile und führt Mozart **1.2.3** in einem separaten Docker-Container aus. Mozart selbst wird nicht als Plugin-Abhängigkeit installiert oder ausgeliefert.
+## License
 
-Die [Mozart-Konfiguration](composer.json:20) isoliert Laufzeitbibliotheken unter dem Namespace **SWNewspaper2\\Dependencies**. Namenlose beziehungsweise globale Klassen, Konstanten und Funktionen erhalten ebenfalls Plugin-spezifische Präfixe. Ohne explizite Paketliste verarbeitet Mozart alle Laufzeitabhängigkeiten samt deren Abhängigkeiten, nicht die Entwicklungswerkzeuge.
+[GPL-2.0-or-later](https://www.gnu.org/licenses/gpl-2.0.html) — see [LICENSE](LICENSE). Provided by Stefan Warnat.
 
-Das generierte Verzeichnis **vendor-prefixed** enthält die isolierten Bibliotheken und deren eigenen Autoloader. Der [Plugin-Bootstrap](sw-newspaper2.php:47) bevorzugt diesen Autoloader und registriert daran zusätzlich den Plugin-Namespace. Im Release ist deshalb das ursprüngliche Vendor-Verzeichnis nicht erforderlich und wird vollständig ausgeschlossen. Entwicklungswerkzeuge, Tests, Git-Metadaten und Composer-Builddateien werden ebenfalls nicht ins ZIP übernommen. Der Installationsordner im Archiv bleibt unabhängig vom Repository-Namen **sw-newspaper2**.
-
-Für einen lokalen Release-Build mit Docker im Plugin-Verzeichnis:
-
-```sh
-composer validate --strict
-composer install --no-dev --prefer-dist --no-interaction --no-scripts --optimize-autoloader
-docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/project" coenjacobs/mozart:1.2.3 /mozart/bin/mozart compose
-php tests/bootstrap.php
-```
-
-Mozart verändert den Build-Arbeitsbaum und entfernt verarbeitete Originalbibliotheken. Den Release-Build deshalb in einem frischen Checkout oder einer separaten Kopie ausführen, nicht in der laufenden WordPress-Installation. Nach Änderungen an den Abhängigkeiten das generierte Ausgabe-Verzeichnis neu aufbauen; es wird nicht eingecheckt. Beim Einbinden neuer Bibliotheken sicherstellen, dass die gebaute Plugin-Version die isolierten Klassen verwendet. Der aktuelle Stand benötigt noch keine externen Laufzeitbibliotheken.
-
-Der Workflow führt die [Importer-Regressionstests](tests/legacy-import.php) aus, prüft den generierten Autoloader und startet den [Bootstrap-Smoke-Test](tests/bootstrap.php) gegen das fertig zusammengestellte Paket **ohne** ursprüngliches Vendor-Verzeichnis. Anschließend werden ZIP-Integrität und erforderliche beziehungsweise unerwünschte Archivpfade geprüft. Erst danach wird das ZIP an das GitHub-Release angehängt.
-
-## Automatischer Import aus sw-newspaper
-
-Bei der **Aktivierung** von sw-newspaper2 werden vorhandene Zeitungen aus dem Vorgänger automatisch übernommen, wenn beide Bedingungen erfüllt sind:
-
-- Das alte Plugin ist unter [`sw-newspaper/sw-newspaper.php`](../sw-newspaper/sw-newspaper.php) installiert; es muss nicht aktiviert sein.
-- Es existiert noch kein als sw-newspaper2-Zeitung gekennzeichneter Medienanhang.
-
-Bereits aktivierte Installationen können den Import durch Deaktivieren und erneutes Aktivieren von sw-newspaper2 auslösen. Bei einer Netzwerkaktivierung werden die Bedingungen für jede bestehende Website separat geprüft.
-
-Der [Importer](src/Legacy_Importer.php) übernimmt alle vom Vorgänger gekennzeichneten PDF-Anhänge einschließlich vorhandener gültiger Titelbild-Anhänge. Er ergänzt nur die neuen Plugin-Metadaten: Es werden keine Dateien kopiert, keine Titelbilder neu erzeugt und keine alten Metadaten gelöscht. Titel, Medien-URLs und vorhandene Ordnerzuordnungen bleiben unverändert.
-
-Das alte Ausgabedatum wird übernommen, sofern es gültig ist. Fehlt es oder ist es ungültig, dient das lokale Anhangsdatum als Ersatz; ist auch dieses ungültig, wird das aktuelle Datum der Website verwendet. Auch importierte Ausgaben werden im Frontend nach diesem Ausgabedatum sortiert. Die im Vorgänger manuell beziehungsweise per letztem Upload festgelegte aktuelle Ausgabe wird nicht gesondert übernommen.
-
-Die alten dFlip- und Medienordner-Einstellungen werden nicht kopiert und dFlip-Buchquellen nicht verändert. Diese Integrationen bei Bedarf in sw-newspaper2 neu auswählen. Vorhandene Seiteninhalte werden ebenfalls nicht umgeschrieben: Alte Shortcodes müssen durch die oben dokumentierten sw-newspaper2-Shortcodes ersetzt werden.
-
-Sobald sw-newspaper2 bereits eine Zeitung enthält, wird bei erneuter Aktivierung nichts importiert oder überschrieben. Normale, nicht vom Vorgänger gekennzeichnete Mediathek-PDFs werden weiterhin nicht automatisch übernommen. Beide Plugins verweisen nach dem Import auf dieselben Dateien; ein endgültiges Löschen in sw-newspaper2 betrifft deshalb auch die vom alten Plugin verlinkten Medien.
-
-## Ausgaben im Backend veröffentlichen und verwalten
-
-### Upload
-
-Unter **Zeitung / Newspaper → Upload** einen Titel, ein gültiges Ausgabedatum und eine PDF-Datei angeben. Das Plugin:
-
-1. speichert die PDF als Anhang in der Mediathek;
-2. versucht, die erste Seite als separates PNG-Titelbild zu speichern;
-3. kennzeichnet die PDF als Zeitung und speichert das Ausgabedatum;
-4. ordnet PDF und Titelbild gegebenenfalls dem eingestellten Medienordner zu;
-5. aktualisiert gegebenenfalls das konfigurierte dFlip-Buch.
-
-Schlägt nur die Titelbilderzeugung fehl, wird die Ausgabe trotzdem veröffentlicht. Im Backend erscheint eine Warnung; die normale Cover-Ausgabe zeigt dann einen anklickbaren **PDF**-Platzhalter.
-
-**Ein gewöhnlicher PDF-Upload unter „Medien“ genügt nicht.** Das Frontend berücksichtigt nur Anhänge mit der Plugin-Kennzeichnung und dem gespeicherten Ausgabedatum. Abgesehen vom automatischen Import aus dem Vorgänger bei Aktivierung gibt es keine Oberfläche zum nachträglichen Importieren vorhandener Mediathek-PDFs.
-
-### Welche Ausgabe gilt als aktuell?
-
-Die Ausgaben werden nach dem **Ausgabedatum absteigend** sortiert, nicht nach Upload-Zeitpunkt oder Dateiname. Die erste Ausgabe dieser Sortierung gilt als aktuell. Bei gleichem Datum definiert das Plugin keine zusätzliche Sortierung.
-
-Ein Datum in der Zukunft ist keine geplante Veröffentlichung: Die Ausgabe wird sofort berücksichtigt und kann damit unmittelbar zur aktuellen Ausgabe werden. Siehe [Abfrage und Auswahl der aktuellen Ausgabe](src/Newspaper_Repository.php:25).
-
-### Archiv und Löschen
-
-Der Backend-Reiter **Archiv / Archive** zeigt die gespeicherten Ausgaben. Beim Löschen einer Ausgabe werden **PDF und zugehöriges Titelbild endgültig** aus der Mediathek entfernt, nicht nur aus der Frontend-Liste.
-
-Für den Backend-Zugang und Upload ist die WordPress-Berechtigung [`upload_files`](src/Capabilities.php:15) erforderlich. Die Einstellungen benötigen zusätzlich [`manage_options`](src/Capabilities.php:18). Das Löschen wird über die WordPress-Berechtigung für den jeweiligen Anhang geprüft.
-
-## Frontend-Shortcodes und Parameter
-
-### 1. Download-Button zur aktuellen Ausgabe
-
-Beispiel: [`[swnewspaper2_download label="Zeitung als PDF öffnen"]`](src/Shortcodes.php:36)
-
-| Parameter | Standard | Bedeutung |
-| --- | --- | --- |
-| [`label`](src/Shortcodes.php:37) | `Download` | Sichtbarer Button-Text; wird als Text ausgegeben, nicht als HTML. |
-
-Ohne Parameter: [`[swnewspaper2_download]`](src/Shortcodes.php:36)
-
-Der Button verlinkt direkt auf die PDF der nach Ausgabedatum neuesten Ausgabe. Er öffnet standardmäßig im selben Tab. Trotz der Bezeichnung „Download“ erzwingt er keinen Dateidownload: Ob die PDF angezeigt oder heruntergeladen wird, entscheiden Browser und Server.
-
-### 2. Titelbild oder dFlip-Vorschau der aktuellen Ausgabe
-
-Beispiel: [`[swnewspaper2_current width="300"]`](src/Shortcodes.php:55)
-
-| Parameter | Standard | Werte und Bedeutung |
-| --- | --- | --- |
-| [`width`](src/Shortcodes.php:56) | `200` | Breite des äußeren Containers in Pixeln, als ganze Zahl ohne Einheit. Wird auf mindestens 50 und höchstens 1200 begrenzt. |
-
-Ohne Parameter: [`[swnewspaper2_current]`](src/Shortcodes.php:55)
-
-- Ohne verfügbare dFlip-Integration erscheint das Titelbild als Link zur aktuellen PDF. Der Link öffnet in einem neuen Tab.
-- Ohne Titelbild erscheint stattdessen der anklickbare Text **PDF**.
-- Wenn ein dFlip-Buch in den Plugin-Einstellungen ausgewählt wurde und der dFlip-Shortcode registriert ist, wird die dFlip-Vorschau statt des normalen PDF-Covers ausgegeben.
-- Der Container ist maximal so breit wie der verfügbare Platz. Die tatsächliche Bildgröße kann durch das Bildformat und die maximale Bildhöhe von 400 Pixeln kleiner ausfallen.
-- Dieser Shortcode gibt selbst weder den Ausgabentitel noch das Ausgabedatum aus.
-
-Die Auswahl eines bestimmten Buchs oder einer bestimmten Zeitung ist kein Shortcode-Parameter; die dFlip-Zuordnung erfolgt global in den Plugin-Einstellungen.
-
-### 3. Ausgabenarchiv als Raster
-
-Beispiel: [`[swnewspaper2_archive columns="3" limit="9"]`](src/Shortcodes.php:78)
-
-| Parameter | Standard | Werte und Bedeutung |
-| --- | --- | --- |
-| [`columns`](src/Shortcodes.php:81) | `4` | Gewünschte Spaltenzahl auf großen Bildschirmen; ganze Zahl von 1 bis 6. Kleinere oder größere Werte werden auf diese Grenzen begrenzt. |
-| [`limit`](src/Shortcodes.php:82) | `-1` | Maximale Zahl der Ausgaben. Eine positive ganze Zahl begrenzt die Liste; `-1` zeigt alle Ausgaben. Für eine verlässliche Begrenzung nicht `0` verwenden. |
-
-Ohne Parameter: [`[swnewspaper2_archive]`](src/Shortcodes.php:78)
-
-Jede Karte enthält ein verlinktes Titelbild beziehungsweise den PDF-Platzhalter, den beim Upload vergebenen Titel und das Ausgabedatum. Das Datumsformat stammt aus **Einstellungen → Allgemein → Datumsformat** in WordPress.
-
-- Sortierung: neuestes Ausgabedatum zuerst.
-- Die aktuelle Ausgabe ist ebenfalls im Archiv enthalten.
-- Cover-Links öffnen die jeweilige PDF in einem neuen Tab, auch wenn dFlip eingerichtet ist.
-- Bis einschließlich 900 Pixel Viewport-Breite zeigt das Raster höchstens zwei Spalten, bis einschließlich 480 Pixel nur eine.
-- Es gibt keine Seitennavigation, Jahresfilter, Suchfunktion oder Auswahl einzelner Ausgaben per ID. Auch ein Ausschluss der aktuellen Ausgabe ist nicht als Parameter implementiert.
-
-Nur die oben genannten Attribute werden von den jeweiligen Plugin-Shortcodes ausgewertet; zusätzliche Attribute ergänzen keine Funktionen.
-
-## Optionale Integrationen
-
-### dFlip-Blätterbuch
-
-1. dFlip installieren und aktivieren.
-2. In dFlip ein Buch anlegen.
-3. Unter **Zeitung / Newspaper → Einstellungen / Settings → dFlip-Buch** dieses Buch auswählen und speichern.
-4. Anschließend eine Ausgabe über sw-newspaper2 hochladen, damit PDF-Quelle und Vorschaubild des Buchs gesetzt werden.
-5. Im Frontend [`[swnewspaper2_current width="300"]`](src/Shortcodes.php:55) verwenden.
-
-Intern wird die dFlip-Ausgabe [`[dflip id="123" type="thumb"][/dflip]`](src/Shortcodes.php:67) mit der gespeicherten Buch-ID aufgerufen. Ein zusätzlicher dFlip-Shortcode im Seiteninhalt ist für diese Integration nicht nötig. Wie sich die Blätterbuchansicht im Detail verhält, bestimmt dFlip.
-
-**Wichtiger Unterschied:** Das ausgewählte dFlip-Buch wird bei **jedem neuen Upload** auf die hochgeladene PDF umgestellt, unabhängig von deren Ausgabedatum. Download-Button und normale Cover-Ausgabe wählen dagegen nach Ausgabedatum. Beim nachträglichen Hochladen einer älteren Ausgabe können dFlip und Download deshalb unterschiedliche PDFs zeigen.
-
-Das bloße Speichern einer neuen Buchauswahl synchronisiert keine bereits vorhandene Ausgabe. Auch das Löschen einer Zeitung setzt das dFlip-Buch nicht automatisch auf die nächste Ausgabe zurück. In solchen Fällen die Buchquelle in dFlip prüfen und gegebenenfalls dort korrigieren. Siehe [Aktualisierung beim Upload](src/Upload_Service.php:151) und [Speichern der Einstellungen](src/Settings.php:32).
-
-### WP Media Folder
-
-Unter **Einstellungen / Settings → Medienordner / Media folder** kann ein vorhandener WP-Media-Folder-Ordner gewählt werden. Zukünftige Uploads von PDFs und Titelbildern werden diesem Ordner zugeordnet. Bestehende Ausgaben werden beim Speichern der Einstellung nicht nachträglich verschoben.
-
-Die Ordnerzuordnung organisiert die Mediathek; sie ist kein Filter für das Frontend-Archiv.
-
-## Gestaltung
-
-Das Plugin lädt seine [Frontend-Styles](assets/frontend.css) bei einer nicht leeren Shortcode-Ausgabe. Anpassungen können im Theme beziehungsweise über dessen zusätzliche CSS-Einstellungen erfolgen. Zentrale Selektoren sind:
-
-| Selektor | Element |
-| --- | --- |
-| [`.swnp-button`](assets/frontend.css:65) | Download-Button |
-| [`.swnp-current`](src/Shortcodes.php:72) | Container der aktuellen Ausgabe |
-| [`.swnp-archive`](assets/frontend.css:1) | Archiv-Raster |
-| [`.swnp-card`](assets/frontend.css:10) | Einzelne Archivkarte |
-| [`.swnp-cover`](assets/frontend.css:29) | Verlinktes Titelbild |
-| [`.swnp-card__title`](assets/frontend.css:53) | Ausgabentitel |
-| [`.swnp-card__date`](assets/frontend.css:60) | Ausgabedatum |
-
-## Häufige Probleme
-
-| Symptom | Prüfung / Lösung |
-| --- | --- |
-| Der Shortcode erscheint als Text. | Plugin-Aktivierung, PHP-Version und vollständiges Paket mit Composer-Autoloader prüfen. Einen Shortcode-Block beziehungsweise ein Shortcode-Element verwenden. |
-| Es erscheint gar nichts. | Mindestens eine Ausgabe über den Plugin-Upload veröffentlichen. Ein PDF nur in der Mediathek reicht nicht. |
-| Statt eines Covers erscheint „PDF“. | Die Titelbilderzeugung war nicht erfolgreich. Imagick, PDF-Unterstützung, Serverrichtlinien und Schreibrechte prüfen. Die PDF bleibt trotzdem erreichbar. |
-| Die falsche Ausgabe ist aktuell. | Das Ausgabedatum prüfen; nicht der letzte Upload, sondern das höchste Ausgabedatum entscheidet. Sonderfall dFlip beachten. |
-| dFlip zeigt eine ältere oder andere Ausgabe. | Buchauswahl und Quelle in dFlip kontrollieren. Die Quelle wird nur beim Plugin-Upload geändert; auch ein Archiv-Nachupload überschreibt sie. |
-| Ein Klick lädt nicht direkt herunter. | Der Download-Button ist ein normaler PDF-Link ohne erzwungenen Download. Das Anzeigeverhalten hängt von Browser und Server ab. |
-| Der Upload schlägt fehl. | Nur PDF verwenden, Titel und Datum prüfen sowie WordPress-/PHP-Uploadlimits und Verzeichnisrechte kontrollieren. |
-| Das Archiv hat auf dem Smartphone weniger Spalten. | Das ist die beabsichtigte responsive Darstellung. |
-
-Die Frontend-Shortcodes enthalten keine Anmeldung oder Zugriffsbeschränkung. Verlinkte PDFs werden direkt über ihre Medien-URL aufgerufen; dieses Plugin ist kein Schutz für vertrauliche Dokumente.
-
-## Deinstallation und Daten
-
-Bei der Deinstallation entfernt das Plugin seine gespeicherten Einstellungen. Hochgeladene Zeitungen und Titelbilder bleiben in der Mediathek erhalten, siehe [Deinstallationsroutine](uninstall.php:10). Davon zu unterscheiden ist das endgültige Löschen einzelner Ausgaben im Plugin-Archiv, das PDF und Cover entfernt.
+No third-party components are bundled.

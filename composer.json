@@ -42,6 +42,18 @@
     },
     "scripts": {
         "cs": "phpcs --runtime-set ignore_warnings_on_exit 1",
-        "cs:fix": "phpcbf"
+        "cs:fix": "phpcbf",
+        "test": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php tests/run.php"
+        ],
+        "test:coverage": [
+            "Composer\\Config::disableProcessTimeout",
+            "@php tests/run.php --coverage"
+        ]
+    },
+    "scripts-descriptions": {
+        "test": "Run all regression scenarios (requires WP_ROOT and a disposable database, see tests/README.md).",
+        "test:coverage": "Run all scenarios with Xdebug/PCOV, write coverage/clover.xml and fail unless line coverage is > 80 %."
     }
 }

@@ -1,8 +1,12 @@
 # SW-Newspaper2
 
 [![Release](https://img.shields.io/github/v/release/sw-wordpress/sw-newspaper2?sort=semver)](https://github.com/sw-wordpress/sw-newspaper2/releases)
+[![CI](https://github.com/sw-wordpress/sw-newspaper2/actions/workflows/tests.yml/badge.svg)](https://github.com/sw-wordpress/sw-newspaper2/actions/workflows/tests.yml)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=sw-wordpress_sw-newspaper2&metric=coverage)](https://sonarcloud.io/summary/overall?id=sw-wordpress_sw-newspaper2)
 [![SonarQube Issues](https://sonarcloud.io/api/project_badges/measure?project=sw-wordpress_sw-newspaper2&metric=vulnerabilities)](https://sonarcloud.io/project/issues?id=sw-wordpress_sw-newspaper2&impactSoftwareQualities=SECURITY&resolved=false)
+![PHP 8.2+](https://img.shields.io/badge/PHP-8.2%2B-777bb4?style=flat-square&logo=php&logoColor=white)
+![WordPress 6.4+](https://img.shields.io/badge/WordPress-6.4%2B-21759b?style=flat-square&logo=wordpress&logoColor=white)
+[![License GPL-2.0-or-later](https://img.shields.io/badge/License-GPL--2.0--or--later-blue?style=flat-square)](https://www.gnu.org/licenses/gpl-2.0.html)
 
 Publishes [PDF](https://en.wikipedia.org/wiki/PDF) newspapers through the WordPress Media Library.
 Shows the current issue, a download button and an archive of all issues on your pages via

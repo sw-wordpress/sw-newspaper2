@@ -11,6 +11,7 @@ use SebastianBergmann\CodeCoverage\CodeCoverage;
 use SebastianBergmann\CodeCoverage\Report\Clover;
 
 require dirname( __DIR__, 2 ) . '/vendor/autoload.php';
+require __DIR__ . '/gate.php';
 $files = glob( ( $argv[1] ?? '' ) . '/*.cov' );
 if ( false === $files || array() === $files ) { throw new RuntimeException( 'No coverage fragments were produced.' ); }
 $merged = null;
@@ -36,7 +37,13 @@ foreach ( $document->getElementsByTagName( 'file' ) as $file ) {
 }
 $document->save( $target );
 $report = $merged->getReport();
+$executed   = $report->numberOfExecutedLines();
+$executable = $report->numberOfExecutableLines();
 printf( "Coverage: %d/%d executable lines (%.2f%%), merged from %d processes.\n",
-	$report->numberOfExecutedLines(), $report->numberOfExecutableLines(),
-	$report->percentageOfExecutedLines()->asFloat(), count( $files ) );
+	$executed, $executable, $report->percentageOfExecutedLines()->asFloat(), count( $files ) );
 echo 'Clover report: coverage/clover.xml' . PHP_EOL;
+if ( ! swnp_coverage_passes( $executed, $executable ) ) {
+	fwrite( STDERR, sprintf( 'FAIL: PHP line coverage must be greater than %d %%.', SWNP_COVERAGE_MINIMUM ) . PHP_EOL );
+	exit( 1 );
+}
+printf( "PASS: PHP line coverage is greater than %d %%.\n", SWNP_COVERAGE_MINIMUM );

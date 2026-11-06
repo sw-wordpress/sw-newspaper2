@@ -1,6 +1,6 @@
 <?php
 /**
- * Run all regression scenarios in separate PHP processes, optionally collecting coverage.
+ * Run all regression scenarios and the coverage-gate test in separate PHP processes, optionally collecting coverage.
  * Usage: WP_ROOT=/tmp/wordpress WP_DB_HOST=127.0.0.1:3306 php tests/run.php [--coverage]
  *
  * @package SWNewspaper2
@@ -22,9 +22,11 @@ if ( $collect ) {
 }
 
 $scenarios = array(
+	array( 'tests/coverage-gate.php' ),
 	array( 'tests/bootstrap.php' ),
 	array( 'tests/legacy-import.php' ),
 	array( 'tests/archive-performance.php' ),
+	array( 'tests/admin-workflows.php' ),
 );
 
 $run = static function ( array $command ): void {

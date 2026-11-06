@@ -25,6 +25,10 @@ declare(strict_types=1);
 		$coverage->stop();
 		$coverage->clearCache();
 		$file = getenv( 'SW_NEWSPAPER2_COVERAGE_FILE' );
+		if ( false !== $file && 'cli-server' === PHP_SAPI ) {
+			// Each request of the upload endpoint server writes its own fragment next to the scenario's.
+			$file = substr( $file, 0, -4 ) . '-request-' . bin2hex( random_bytes( 8 ) ) . '.cov';
+		}
 		if ( false === $file || false === file_put_contents( $file, serialize( $coverage ) ) ) {
 			fwrite( STDERR, 'FAIL: Could not write process coverage.' . PHP_EOL );
 			exit( 1 );

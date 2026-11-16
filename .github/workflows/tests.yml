@@ -31,10 +31,11 @@ jobs:
     - uses: shivammathur/setup-php@v2
       with:
         php-version: ${{ matrix.php }}
-        extensions: mysqli, imagick
+        extensions: mysqli, imagick, zip, sodium
         tools: composer:v2
         coverage: ${{ matrix.coverage && 'xdebug' || 'none' }}
     - run: composer install --prefer-dist --no-interaction --no-progress
+    - run: composer install --working-dir=tests/wp --prefer-dist --no-interaction --no-progress
     - run: composer validate --strict
     - run: composer cs
     - name: Install WordPress test files
@@ -47,10 +48,15 @@ jobs:
           curl --fail --location --retry 3 "https://wordpress.org/wordpress-${WP_VERSION}.tar.gz" -o /tmp/wordpress.tar.gz
         fi
         tar -xzf /tmp/wordpress.tar.gz -C /tmp
+    - name: Create isolated update-test database
+      run: mysql -h127.0.0.1 -uroot -e 'CREATE DATABASE swnewspaper2_wp_tests'
     - name: Run regression scenarios
       env:
         WP_ROOT: /tmp/wordpress
         WP_DB_HOST: 127.0.0.1:3306
+        SWNEWSPAPER2_TEST_DB_PORT: 3306
+        SWNEWSPAPER2_TEST_DB_USER: root
+        SWNEWSPAPER2_TEST_DB_PASSWORD: ""
         COLLECT_COVERAGE: ${{ matrix.coverage }}
         XDEBUG_MODE: coverage
       run: |
@@ -60,6 +66,11 @@ jobs:
         else
           php tests/run.php
         fi
+    - name: Validate real release artifacts with disposable key
+      if: matrix.coverage
+      run: |
+        make dist
+        php tests/release.php dist/sw-newspaper2-*.zip
     - name: Upload Clover coverage
       if: matrix.coverage
       uses: actions/upload-artifact@v4
@@ -79,6 +90,8 @@ jobs:
     - run: npm ci
     # Fails unless JavaScript line coverage is strictly greater than 80 %.
     - run: npm run test:coverage
+    - run: npx playwright-core install chromium
+    - run: node tests/js/updates-browser.mjs
     - name: Upload LCOV coverage
       uses: actions/upload-artifact@v4
       with:
@@ -92,10 +105,7 @@ jobs:
     - archive
     - javascript
     if: |-
-      (github.event_name == 'pull_request' &&
-       github.event.pull_request.head.repo.full_name == github.repository) ||
-      (github.event_name == 'push' &&
-       github.ref_name == github.event.repository.default_branch)
+      github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -131,7 +141,4 @@ jobs:
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 on:
-  push:
-    branches:
-    - '**'
   pull_request: null

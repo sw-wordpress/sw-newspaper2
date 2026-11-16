@@ -127,3 +127,19 @@ Pushing a version tag (e.g. `2.0.1`) builds the release ZIP with dependencies is
 [GPL-2.0-or-later](https://www.gnu.org/licenses/gpl-2.0.html) — see [LICENSE](LICENSE). Provided by Stefan Warnat.
 
 No third-party components are bundled.
+
+## Release
+
+`make dist` erzeugt `dist/sw-newspaper2-<version>.zip` mit isoliertem Composer-Loader
+(keine produktiven Drittanbieterabhängigkeiten). PHP 8.2+, Sodium, ZIP und Composer
+werden benötigt. Runtime-Dateien kommen aus einer festen Positivliste.
+
+`make release VERSION=2.0.1` setzt Header und Versionskonstante, committet die
+Versionsänderung und pusht Branch und Tag atomar nach `origin`. Voraussetzung:
+sauberer Checkout, vorhandene GitHub-Anmeldung und noch freier Versionstag.
+Der Tag startet den signierten Draft-/Publish-Workflow, keine Testsuite.
+
+GitHub-Updates werden nur manuell über WordPress installiert; Prüfschaltfläche und
+Status stehen in der Pluginübersicht. Der Schlüsselring ist zunächst leer.
+[Betreiberkonfiguration, Vertrauensstart und Rotation](docs/GITHUB-UPDATES-BETRIEB.md)
+müssen vor einer produktiven Updateversorgung abgeschlossen werden.

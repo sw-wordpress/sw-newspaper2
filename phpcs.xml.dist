@@ -6,6 +6,7 @@
     <arg value="sp"/>
     <arg name="cache" value=".phpcs.cache"/>
     <file>src</file>
+    <file>includes</file>
     <file>templates</file>
     <file>sw-newspaper2.php</file>
     <file>uninstall.php</file>

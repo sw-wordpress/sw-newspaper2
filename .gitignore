@@ -8,3 +8,7 @@
 # Local analysis output
 /coverage/
 /.scannerwork/
+
+/dist/
+/tests/wp/vendor/
+/tests/wp/.phpunit.result.cache

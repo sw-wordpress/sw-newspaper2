@@ -13,6 +13,7 @@ declare(strict_types=1);
 	require_once $root . '/vendor/autoload.php';
 	$filter = new \SebastianBergmann\CodeCoverage\Filter();
 	$filter->includeDirectory( $root . '/src' );
+	$filter->includeDirectory( $root . '/includes' );
 	$filter->includeDirectory( $root . '/templates' );
 	$filter->includeFile( $root . '/sw-newspaper2.php' );
 	$filter->includeFile( $root . '/uninstall.php' );

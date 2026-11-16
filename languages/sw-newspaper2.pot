@@ -171,7 +171,7 @@ msgid "Newspaper sections"
 msgstr ""
 
 #: templates/admin/layout.php:46
-msgid "Powered by sw-newspaper2 from Stefan Warnat"
+msgid "Open source by Stefan Warnat – free to use, free to change, better together."
 msgstr ""
 
 #: templates/admin/tab-archive.php:18

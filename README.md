@@ -1,5 +1,7 @@
 # SW-Newspaper2
 
+*Open source by Stefan Warnat – free to use, free to change, better together.*
+
 [![Release](https://img.shields.io/github/v/release/sw-wordpress/sw-newspaper2?sort=semver)](https://github.com/sw-wordpress/sw-newspaper2/releases)
 [![CI](https://github.com/sw-wordpress/sw-newspaper2/actions/workflows/tests.yml/badge.svg)](https://github.com/sw-wordpress/sw-newspaper2/actions/workflows/tests.yml)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=sw-wordpress_sw-newspaper2&metric=coverage)](https://sonarcloud.io/summary/overall?id=sw-wordpress_sw-newspaper2)
@@ -124,7 +126,7 @@ Pushing a version tag (e.g. `2.0.1`) builds the release ZIP with dependencies is
 
 ## License
 
-[GPL-2.0-or-later](https://www.gnu.org/licenses/gpl-2.0.html) — see [LICENSE](LICENSE). Provided by Stefan Warnat.
+[GPL-2.0-or-later](https://www.gnu.org/licenses/gpl-2.0.html) — see [LICENSE](LICENSE).
 
 No third-party components are bundled.
 

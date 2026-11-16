@@ -43,7 +43,7 @@ defined( 'ABSPATH' ) || exit;
 		<?php $this->include_template( 'tab-' . $data['tab'], $data ); ?>
 
 		<p class="swnp-footer">
-			<?php esc_html_e( 'Powered by sw-newspaper2 from Stefan Warnat', 'sw-newspaper2' ); ?>
+			<?php esc_html_e( 'Open source by Stefan Warnat – free to use, free to change, better together.', 'sw-newspaper2' ); ?>
 		</p>
 	</div>
 </div>

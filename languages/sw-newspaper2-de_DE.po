@@ -172,8 +172,8 @@ msgid "Newspaper sections"
 msgstr "Bereiche der Zeitung"
 
 #: templates/admin/layout.php:46
-msgid "Powered by sw-newspaper2 from Stefan Warnat"
-msgstr "Bereitgestellt von sw-newspaper2 von Stefan Warnat"
+msgid "Open source by Stefan Warnat – free to use, free to change, better together."
+msgstr "Open Source von Stefan Warnat – frei nutzbar, frei veränderbar, gemeinsam besser."
 
 #: templates/admin/tab-archive.php:18
 msgid "No newspapers published yet."

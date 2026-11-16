@@ -23,10 +23,14 @@ if ( $collect ) {
 
 $scenarios = array(
 	array( 'tests/coverage-gate.php' ),
+	array( 'tests/policy.php' ),
 	array( 'tests/bootstrap.php' ),
 	array( 'tests/legacy-import.php' ),
 	array( 'tests/archive-performance.php' ),
 	array( 'tests/admin-workflows.php' ),
+	// Same disposable DB: single-site and multisite always run sequentially.
+	array( 'tests/wp/vendor/bin/phpunit', '-c', 'tests/wp/phpunit.xml.dist' ),
+	array( 'tests/wp/vendor/bin/phpunit', '-c', 'tests/wp/phpunit-ms.xml.dist' ),
 );
 
 $run = static function ( array $command ): void {

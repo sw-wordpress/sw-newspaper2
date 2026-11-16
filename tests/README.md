@@ -63,8 +63,42 @@ thresholds accept exactly 80 %. Both gates have boundary tests.
 
 ## SonarQube
 
-The Actions workflow analyzes same-repository PRs and default-branch pushes and imports
+The Actions workflow analyzes same-repository PRs and imports
 `coverage/clover.xml` and `coverage/js/lcov.info`. Configure `SONAR_TOKEN` as an Actions
 secret and `SONAR_ORGANIZATION` as an Actions variable. Fork PRs run tests without the
 scanner token. Project mapping: `sonar-project.properties`. Coverage and scanner output
 are development artifacts, never production plugin files.
+
+## Verifizierte Updates
+
+Einmalig `composer install --working-dir=tests/wp` ausführen. Der Updatevertrag
+(`tests/wp/tests/VerifiedUpdatesTest.php`, adaptiert aus ChurchTools Suite
+`49dc66f`) verwendet eine eigene WordPress-Installation unter `tests/wp/vendor/`,
+Wegwerfschlüssel und simuliertes HTTP. Native Einzel-/AJAX-/Sammel-Upgrades
+schreiben ausschließlich in deren Pluginordner. `PeerIsolationTest` lädt eine
+zweite, separat präfixierte SW-Providerkopie als Kollisionsfixture.
+
+Für lokale Gesamtläufe eine neue private MariaDB starten:
+
+```sh
+bash bin/test-db.sh start
+WP_ROOT="$PWD/tests/wp/vendor/johnpbloch/wordpress-core" \
+  WP_DB_HOST=127.0.0.1:33112 WP_DB_USER=swnewspaper2 WP_DB_PASSWORD=swnewspaper2 \
+  XDEBUG_MODE=coverage composer test:coverage
+npm run test:coverage
+node tests/js/updates-browser.mjs
+make dist
+php tests/release.php dist/sw-newspaper2-*.zip
+bash bin/test-db.sh stop
+```
+
+Der Runner führt alle DB-Szenarien einschließlich Single-Site und Multisite
+sequenziell aus; Coverage zählt auch `includes/`. Updates haben einen eigenen
+DB-Namen (`swnewspaper2_wp_tests`); beide Testdatenbanken sind wegwerfbar.
+`SWNEWSPAPER2_TEST_DB_*` konfiguriert nur die private Update-Testumgebung.
+`tests/policy.php` prüft WP-CLI/REST und deaktiviertes Sodium/ZIP in Unterprozessen.
+Die Browserprüfung nutzt Playwright Chromium (`npx playwright-core install chromium`).
+Der Artefakttest prüft die drei wörtlichen Betriebsblöcke in Bash/Zsh mit isolierten
+Pfaden und einer lokalen `gh`-Attrappe; keine produktiven Schlüssel oder Secrets.
+CI-Suiten laufen ausschließlich auf Pull Requests; der Release-Workflow validiert
+Artefakte mit den Laufzeitprüfern, ohne eine Testsuite zu starten.

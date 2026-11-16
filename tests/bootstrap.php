@@ -22,6 +22,10 @@ function add_action( string $hook, mixed $callback ): void {
 	$GLOBALS['test_actions'][ $hook ][] = $callback;
 }
 
+function add_filter( string $hook, mixed $callback, int $priority = 10, int $args = 1 ): void {}
+
+function register_deactivation_hook( string $file, mixed $callback ): void {}
+
 function add_shortcode( string $tag, mixed $callback ): void {
 	$GLOBALS['test_shortcodes'][ $tag ] = $callback;
 }

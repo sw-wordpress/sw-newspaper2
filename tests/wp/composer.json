@@ -1,0 +1,20 @@
+{
+  "name": "sw-newspaper2/wp-tests",
+  "description": "Isolated disposable WordPress update tests.",
+  "type": "project",
+  "require-dev": {
+    "johnpbloch/wordpress-core": "^6.8",
+    "phpunit/phpunit": "^9.6",
+    "wp-phpunit/wp-phpunit": "^6.8",
+    "yoast/phpunit-polyfills": "^2.0"
+  },
+  "config": {
+    "platform": {
+      "php": "8.2.0"
+    },
+    "allow-plugins": {
+      "johnpbloch/wordpress-core-installer": true
+    }
+  },
+  "license": "GPL-2.0-or-later"
+}

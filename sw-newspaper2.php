@@ -11,6 +11,7 @@
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       sw-newspaper2
+ * Update URI:       https://github.com/sw-wordpress/sw-newspaper2
  * Domain Path:       /languages
  *
  * @package SWNewspaper2
@@ -43,6 +44,10 @@ if ( version_compare( PHP_VERSION, SWNEWSPAPER2_MIN_PHP, '<' ) ) {
 	);
 	return;
 }
+
+// Independent of Composer: guards also protect stale offers in incomplete checkouts.
+require_once SWNEWSPAPER2_DIR . 'includes/update/class-sw-newspaper2-update-provider.php';
+register_deactivation_hook( __FILE__, array( SWNewspaper2_Update_Provider::class, 'deactivate' ) );
 
 $swnewspaper2_autoload = SWNEWSPAPER2_DIR . 'vendor-prefixed/autoload.php';
 if ( ! is_readable( $swnewspaper2_autoload ) ) {
